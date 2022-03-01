@@ -1,29 +1,24 @@
 {
   "schemaVersion": 1,
-  "id": "mod_template",
+  "id": "clojuremixin",
   "version": "${version}",
-  "name": "Mod Template",
+  "name": "ClojureMixin",
   "description": "Description",
   "authors": [
     "Luke Bemish"
   ],
   "contact": {
-    "sources": "https://github.com/lukebemish/mod_template"
+    "sources": "https://github.com/lukebemish/clojuremixin"
   },
   "license": "LGPL v3",
   "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "mod_template.fabric.ModTemplateFabric"
-    ],
-    "client": [
-      "mod_template.fabric.ModTemplateClientFabric"
+      "lukebemish.clojuremixin.fabric.ClojureMixinFabric"
     ]
   },
   "depends": {
-    "fabric": "*",
-    "minecraft": ">=1.18",
-    "architectury": ">=3.4.9"
+    "minecraft": ">=1.18"
   }
 }

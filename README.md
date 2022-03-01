@@ -1,3 +1,3 @@
-# Mod Template
+# ClojureMixin
 
 README goes here

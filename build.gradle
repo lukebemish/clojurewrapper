@@ -2,6 +2,7 @@ plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
     id "dev.architectury.loom" version "0.10.0-SNAPSHOT" apply false
     id 'io.github.juuxel.loom-quiltflower' version '1.6.0' apply false
+    id 'dev.clojurephant.clojure' version '0.6.0' apply false
 }
 
 architectury {
@@ -11,6 +12,7 @@ architectury {
 subprojects {
     apply plugin: "dev.architectury.loom"
     apply plugin: "io.github.juuxel.loom-quiltflower"
+    apply plugin: 'dev.clojurephant.clojure'
 
     loom {
         silentMojangMappingsLicense()
@@ -26,6 +28,20 @@ subprojects {
         }
         // The following line declares the yarn mappings you may select this one as well.
         // mappings "net.fabricmc:yarn:1.18+build.1:v2"
+        implementation "org.clojure:clojure:${rootProject.clojure_version}"
+    }
+
+    checkClojure.enabled = false
+
+    clojure {
+        builds {
+            main {
+                aotAll()
+                compiler {
+                    setDirectLinking(true)
+                }
+            }
+        }
     }
 }
 
@@ -45,6 +61,7 @@ allprojects {
         // See https://docs.gradle.org/current/userguide/declaring_repositories.html
         // for more information about repositories.
         maven {url="https://maven.parchmentmc.org"}
+        maven {url="https://repo.clojars.org"}
     }
 
     tasks.withType(JavaCompile) {
