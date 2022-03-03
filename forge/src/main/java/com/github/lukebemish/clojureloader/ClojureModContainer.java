@@ -26,6 +26,7 @@ public class ClojureModContainer extends ModContainer {
     private String clojure;
     private Object modInstance;
     public IEventBus eventBus;
+    public Class<?> clojureClass;
 
     public ClojureModContainer(final IModInfo info, final String clojure, final ModFileScanData scanData, final ModuleLayer gameLayer) {
         super(info);
@@ -41,7 +42,8 @@ public class ClojureModContainer extends ModContainer {
 
         try {
             Module layer = gameLayer.findModule(info.getOwningFile().moduleName()).orElseThrow();
-            LOGGER.trace(LogMarkers.LOADING, "Loaded clojure {} with {}",ClojureWrapper.class.getName(),ClojureWrapper.class.getClassLoader());
+            clojureClass = Class.forName("clojure.java.api.Clojure");
+            LOGGER.trace(LogMarkers.LOADING, "Loaded clojure {} with {}", ClojureModWrapper.class.getName(), ClojureModWrapper.class.getClassLoader());
         } catch (Exception e) {
             LOGGER.error(LogMarkers.LOADING, "Failed to load lojure {}", clojure, e);
             throw new ModLoadingException(info, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadClojureWrapper.class", e);
@@ -54,12 +56,12 @@ public class ClojureModContainer extends ModContainer {
 
     private void constructMod() {
         try {
-            LOGGER.trace(LogMarkers.LOADING, "Loading mod instance {} of type {}",getModId(),ClojureWrapper.class.getName());
-            modInstance = new ClojureWrapper(this.clojure);
-            LOGGER.trace(LogMarkers.LOADING, "Loaded mod instance {} of type {}",getModId(),ClojureWrapper.class.getName());
+            LOGGER.trace(LogMarkers.LOADING, "Loading mod instance {} of type {}",getModId(), ClojureModWrapper.class.getName());
+            modInstance = new ClojureModWrapper(this.clojure);
+            LOGGER.trace(LogMarkers.LOADING, "Loaded mod instance {} of type {}",getModId(), ClojureModWrapper.class.getName());
         } catch (Exception e) {
-            LOGGER.error(LogMarkers.LOADING, "Failed to create mod instance. ModID: {}, class {}", getModId(), ClojureWrapper.class.getName(), e);
-            throw new ModLoadingException(modInfo, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmod", e, ClojureWrapper.class);
+            LOGGER.error(LogMarkers.LOADING, "Failed to create mod instance. ModID: {}, class {}", getModId(), ClojureModWrapper.class.getName(), e);
+            throw new ModLoadingException(modInfo, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmod", e, ClojureModWrapper.class);
         }
     }
 

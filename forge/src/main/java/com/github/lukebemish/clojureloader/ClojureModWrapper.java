@@ -5,9 +5,9 @@ import clojure.lang.IFn;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ClojureWrapper {
-    private final static Logger LOGGER = LogManager.getLogger(ClojureWrapper.class);
-    public ClojureWrapper(String clojure) {
+public class ClojureModWrapper {
+    private final static Logger LOGGER = LogManager.getLogger(ClojureModWrapper.class);
+    public ClojureModWrapper(String clojure) {
         String[] parts = clojure.split("/");
         if (parts.length == 2) {
             String ns = parts[0];
