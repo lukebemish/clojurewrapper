@@ -1,5 +1,5 @@
-(ns com.github.lukebemish.clojuremixin.api.platform
-  (:import (com.github.lukebemish.clojuremixin.platform Platform)))
+(ns com.github.lukebemish.clojurewrapper.api.platform
+  (:import (com.github.lukebemish.clojurewrapper.platform Platform)))
 
 (def forge Platform/FORGE)
 (def fabric Platform/FABRIC)

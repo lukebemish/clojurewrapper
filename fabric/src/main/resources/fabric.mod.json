@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "id": "clojuremixin",
+  "id": "clojurewrapper",
   "version": "${version}",
-  "name": "ClojureMixin",
+  "name": "ClojureWrapper",
   "description": "Description",
   "authors": [
     "Luke Bemish"
   ],
   "contact": {
-    "sources": "https://github.com/lukebemish/clojuremixin"
+    "sources": "https://github.com/lukebemish/clojurewrapper"
   },
   "license": "LGPL v3",
   "icon": "icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.github.lukebemish.clojuremixin.fabric.ClojureMixinFabric"
+      "com.github.lukebemish.clojurewrapper.fabric.ClojureWrapperFabric"
     ],
     "client": [
-      "com.github.lukebemish.clojuremixin.fabric.ClojureMixinFabricClient"
+      "com.github.lukebemish.clojurewrapper.fabric.ClojureWrapperFabricClient"
     ]
   },
   "depends": {

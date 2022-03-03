@@ -1,3 +1,3 @@
-# ClojureMixin
+# ClojureWrapper
 
 README goes here

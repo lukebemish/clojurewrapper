@@ -1,7 +1,7 @@
 package com.github.lukebemish.clojureloader;
 
 
-import com.github.lukebemish.clojuremixin.util.Pair;
+import com.github.lukebemish.clojurewrapper.util.Pair;
 import net.minecraftforge.fml.ModLoadingException;
 import net.minecraftforge.fml.ModLoadingStage;
 import net.minecraftforge.fml.loading.LogMarkers;

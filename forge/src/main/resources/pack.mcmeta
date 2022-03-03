@@ -1,6 +1,6 @@
 {
   "pack": {
-    "description": "ClojureMixin",
+    "description": "ClojureWrapper",
     "pack_format": 8
   }
 }
