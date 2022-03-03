@@ -96,6 +96,7 @@ components.java {
 publishing {
     publications {
         mavenForge(MavenPublication) {
+            artifact outputJar
             artifactId = rootProject.archives_base_name + "-" + project.name
             from components.java
         }

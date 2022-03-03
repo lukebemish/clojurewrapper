@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ClojureLoader implements IModLanguageProvider {
-    public static final String NAME = "clojureloader";
+    public static final String NAME = "clojurewrapper";
     private static final Logger LOGGER = LogManager.getLogger(ClojureLoader.class);
 
     @Override

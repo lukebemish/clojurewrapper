@@ -45,8 +45,8 @@ public class ClojureModContainer extends ModContainer {
             clojureClass = Class.forName("clojure.java.api.Clojure");
             LOGGER.trace(LogMarkers.LOADING, "Loaded clojure {} with {}", ClojureModWrapper.class.getName(), ClojureModWrapper.class.getClassLoader());
         } catch (Exception e) {
-            LOGGER.error(LogMarkers.LOADING, "Failed to load lojure {}", clojure, e);
-            throw new ModLoadingException(info, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadClojureWrapper.class", e);
+            LOGGER.error(LogMarkers.LOADING, "Failed to load clojure {}", clojure, e);
+            throw new ModLoadingException(info, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmodclass", e);
         }
     }
 
