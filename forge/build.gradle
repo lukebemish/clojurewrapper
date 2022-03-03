@@ -15,7 +15,7 @@ configurations {
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
-    shadow
+    shade
 }
 
 dependencies {
@@ -24,7 +24,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    shadow "org.clojure:clojure:${rootProject.clojure_version}"
+    shade "org.clojure:clojure:${rootProject.clojure_version}"
 }
 
 processResources {
@@ -60,7 +60,7 @@ task outputJar (type: Jar) {
         ])
     }
     from remapJar.archiveFile.map { project.zipTree(it) }
-    configurations.shadow.each { dep ->
+    configurations.shade.each { dep ->
         from(project.zipTree(dep)) {
             //exclude 'META-INF', 'META-INF/**'
         }
@@ -98,7 +98,6 @@ publishing {
         mavenForge(MavenPublication) {
             artifactId = rootProject.archives_base_name + "-" + project.name
             from components.java
-            from outputJar
         }
     }
 
