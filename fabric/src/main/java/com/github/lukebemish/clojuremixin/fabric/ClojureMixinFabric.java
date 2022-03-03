@@ -1,6 +1,6 @@
-package lukebemish.clojuremixin.fabric;
+package com.github.lukebemish.clojuremixin.fabric;
 
-import lukebemish.clojuremixin.ClojureMixin;
+import com.github.lukebemish.clojuremixin.ClojureMixin;
 import net.fabricmc.api.ModInitializer;
 
 public class ClojureMixinFabric implements ModInitializer {

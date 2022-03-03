@@ -1,6 +1,6 @@
-package lukebemish.clojuremixin.fabric;
+package com.github.lukebemish.clojuremixin.fabric;
 
-import lukebemish.clojuremixin.Platform;
+import com.github.lukebemish.clojuremixin.platform.Platform;
 
 public class PlatformImpl {
     public static Platform getPlatform() {

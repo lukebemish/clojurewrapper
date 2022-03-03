@@ -36,6 +36,7 @@ processResources {
 
 shadowJar {
     configurations = [project.configurations.shadowCommon]
+    duplicatesStrategy 'include'
     classifier "dev-shadow"
 }
 

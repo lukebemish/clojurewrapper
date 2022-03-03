@@ -15,7 +15,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "lukebemish.clojuremixin.fabric.ClojureMixinFabric"
+      "com.github.lukebemish.clojuremixin.fabric.ClojureMixinFabric"
+    ],
+    "client": [
+      "com.github.lukebemish.clojuremixin.fabric.ClojureMixinFabricClient"
     ]
   },
   "depends": {

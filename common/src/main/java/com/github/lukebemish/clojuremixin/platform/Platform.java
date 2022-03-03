@@ -1,4 +1,4 @@
-package lukebemish.clojuremixin;
+package com.github.lukebemish.clojuremixin.platform;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 
@@ -10,6 +10,10 @@ public enum Platform {
 
     @ExpectPlatform
     public static Platform getPlatform() {
+        throw new AssertionError();
+    }
+
+    public static Object unimplError() {
         throw new AssertionError();
     }
 
