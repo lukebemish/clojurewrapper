@@ -16,6 +16,7 @@ configurations {
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
     shade
+    shade.extendsFrom api
 }
 
 dependencies {

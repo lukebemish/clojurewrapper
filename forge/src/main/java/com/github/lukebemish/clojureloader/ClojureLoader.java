@@ -27,7 +27,7 @@ public class ClojureLoader implements IModLanguageProvider {
 
     @Override
     public Consumer<ModFileScanData> getFileVisitor() {
-        LOGGER.info("Visiting files...");
+        LOGGER.debug("Visiting files...");
         return scanData -> {
             var clojures = scanData.getIModInfoData().stream().flatMap((x)->x.getMods().stream())
                     .filter((x)->x instanceof IConfigurable)
