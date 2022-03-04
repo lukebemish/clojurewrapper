@@ -16,7 +16,6 @@ configurations {
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
     shade
-    shade.extendsFrom api
 }
 
 dependencies {
@@ -25,6 +24,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
+    forgeRuntimeLibrary "org.clojure:clojure:${rootProject.clojure_version}"
     shade "org.clojure:clojure:${rootProject.clojure_version}"
 }
 
@@ -43,14 +43,37 @@ shadowJar {
     classifier "dev-shadow"
 }
 
-remapJar {
-    input.set shadowJar.archiveFile
+task resourceShadowJar (type: Jar) {
     dependsOn shadowJar
+    duplicatesStrategy 'exclude'
+    manifest.from {
+        resources.text.fromArchiveEntry(shadowJar.archiveFile, "META-INF/MANIFEST.MF")
+    }
+    manifest {
+        attributes([
+                "FMLModType": "LANGPROVIDER",
+                "Automatic-Module-Name": "clojurewrapper"
+        ])
+    }
+    from shadowJar.archiveFile.map { project.zipTree(it) }
+    configurations.shade.each { dep ->
+        from(project.zipTree(dep).matching({
+            exclude "**/*.class","**/*.java","**/*.clj"
+            includeEmptyDirs false
+        }))
+    }
+    classifier "shadow-resources"
+}
+
+remapJar {
+    input.set resourceShadowJar.archiveFile
+    dependsOn resourceShadowJar
     classifier "remap"
 }
 
 task outputJar (type: Jar) {
     dependsOn remapJar
+    duplicatesStrategy 'exclude'
     manifest.from {
         resources.text.fromArchiveEntry(remapJar.archiveFile, "META-INF/MANIFEST.MF")
     }

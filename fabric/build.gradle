@@ -24,6 +24,7 @@ dependencies {
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 
     include "org.clojure:clojure:${rootProject.clojure_version}"
+    modApi "org.clojure:clojure:${rootProject.clojure_version}"
 }
 
 processResources {
