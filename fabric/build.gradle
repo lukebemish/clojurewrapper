@@ -37,7 +37,7 @@ processResources {
 
 shadowJar {
     configurations = [project.configurations.shadowCommon]
-    duplicatesStrategy 'include'
+    duplicatesStrategy 'exclude'
     classifier "dev-shadow"
 }
 
@@ -54,6 +54,7 @@ jar {
 
 sourcesJar {
     def commonSources = project(":common").sourcesJar
+    duplicatesStrategy 'exclude'
     dependsOn commonSources
     from commonSources.archiveFile.map { zipTree(it) }
 }
@@ -74,6 +75,7 @@ publishing {
 
     // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
+        mavenLocal()
         // Add repositories to publish to here.
     }
 }

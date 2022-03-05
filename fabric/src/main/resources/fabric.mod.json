@@ -13,13 +13,9 @@
   "license": "LGPL v3",
   "icon": "icon.png",
   "environment": "*",
-  "entrypoints": {
-    "main": [
-      "com.github.lukebemish.clojurewrapper.fabric.ClojureWrapperFabric"
-    ],
-    "client": [
-      "com.github.lukebemish.clojurewrapper.fabric.ClojureWrapperFabricClient"
-    ]
+  "entrypoints": {},
+  "languageAdapters": {
+    "clojurewrapper": "com.github.lukebemish.clojureloader.ClojureLanguageAdapter"
   },
   "depends": {
     "minecraft": ">=1.18"

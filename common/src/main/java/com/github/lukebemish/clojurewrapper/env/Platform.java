@@ -1,4 +1,4 @@
-package com.github.lukebemish.clojurewrapper.platform;
+package com.github.lukebemish.clojurewrapper.env;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
 
