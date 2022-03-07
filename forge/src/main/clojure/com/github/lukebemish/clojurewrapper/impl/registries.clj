@@ -1,7 +1,8 @@
 (ns com.github.lukebemish.clojurewrapper.impl.registries
   (:import (java.util.function Supplier)
            (net.minecraftforge.registries ForgeRegistries IForgeRegistry DeferredRegister)
-           (net.minecraft.resources ResourceLocation)))
+           (net.minecraft.resources ResourceLocation)
+           (com.github.lukebemish.clojureloader ClojureModLoadingContext)))
 
 (defn register-objects [mapin]
   (doseq [keyval mapin]
@@ -12,8 +13,11 @@
              :block ForgeRegistries/BLOCKS
              :item ForgeRegistries/ITEMS
              :block-entity ForgeRegistries/BLOCK_ENTITIES)
-          registry-map
-          (if (not (nil? registery)) (into {} (map (fn [n] [n (DeferredRegister/create ^IForgeRegistry registery ^String (. ^ResourceLocation n getNamespace))]) namespaces)))]
-      (if (not (nil? registry-map))
-        (doseq [rlval (second keyval)]
-          (. ^DeferredRegister (get registry-map (. ^ResourceLocation (first rlval) getNamespace)) register ^String (. ^ResourceLocation (first rlval) getNamespace) ^Supplier (second rlval)))))))
+          get-registry (memoize (fn [^ResourceLocation n]
+                                  (if (not (nil? registery)) (DeferredRegister/create ^IForgeRegistry registery ^String (. ^ResourceLocation n getNamespace)))))
+          registry-set (set (map (fn [x] (get-registry (first x))) (seq (second keyval))))]
+      (if (not (nil? registery))
+        (do
+          (doseq [rlval (second keyval)]
+            (. ^DeferredRegister (get-registry (first rlval)) register ^String (. ^ResourceLocation (first rlval) getNamespace) ^Supplier (second rlval)))
+          (map (fn [^DeferredRegister x] (. x register (.getModEventBus (ClojureModLoadingContext/get)))) registry-set))))))

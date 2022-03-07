@@ -3,7 +3,7 @@
   "id": "clojurewrapper",
   "version": "${version}",
   "name": "ClojureWrapper",
-  "description": "Description",
+  "description": "A wrapper API and loader for the Clojure language",
   "authors": [
     "Luke Bemish"
   ],
@@ -13,11 +13,19 @@
   "license": "LGPL v3",
   "icon": "icon.png",
   "environment": "*",
-  "entrypoints": {},
+  "entrypoints": {
+    "main": [
+      {
+        "adapter": "clojureloader",
+        "value": "com.github.lukebemish.clojurewrapper.init"
+      }
+    ]
+  },
   "languageAdapters": {
-    "clojurewrapper": "com.github.lukebemish.clojureloader.ClojureLanguageAdapter"
+    "clojureloader": "com.github.lukebemish.clojureloader.ClojureLanguageAdapter"
   },
   "depends": {
-    "minecraft": ">=1.18"
+    "minecraft": ">=1.18",
+    "fabric": "*"
   }
 }

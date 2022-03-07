@@ -1,0 +1,29 @@
+modLoader = "clojureloader"
+loaderVersion = "[0.0.1,)"
+issueTrackerURL = "https://github.com/lukebemish/clojurewrapper/issues"
+license = "LGPL v3"
+
+[[mods]]
+modId = "clojurewrapper"
+clojure = "com.github.lukebemish.clojurewrapper.init/init"
+version = "${version}"
+displayName = "ClojureWrapper"
+authors = "Luke Bemish"
+description = '''
+A wrapper API for the Clojure language
+'''
+# logoFile = "icon.png"
+
+[[dependencies.clojurewrapper]]
+modId = "forge"
+mandatory = true
+versionRange = "[38,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.clojurewrapper]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.18,)"
+ordering = "NONE"
+side = "BOTH"

@@ -12,21 +12,23 @@ import net.minecraftforge.fml.ModLoadingException;
 import net.minecraftforge.fml.ModLoadingStage;
 import net.minecraftforge.fml.event.IModBusEvent;
 import net.minecraftforge.fml.loading.LogMarkers;
+import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
 import net.minecraftforge.forgespi.language.ModFileScanData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class ClojureModContainer extends ModContainer {
 
     private static final Logger LOGGER = LogManager.getLogger(ClojureModContainer.class);
 
-    private String clojure;
+    private final String clojure;
     private Object modInstance;
-    public IEventBus eventBus;
-    public Class<?> clojureClass;
+    public final IEventBus eventBus;
+    public final Class<?> baseClass;
 
     public ClojureModContainer(final IModInfo info, final String clojure, final ModFileScanData scanData, final ModuleLayer gameLayer) {
         super(info);
@@ -41,11 +43,17 @@ public class ClojureModContainer extends ModContainer {
         contextExtension = () -> new ClojureModLoadingContext(this);
 
         try {
-            Module layer = gameLayer.findModule(info.getOwningFile().moduleName()).orElseThrow();
-            clojureClass = Class.forName("clojure.java.api.Clojure");
-            LOGGER.trace(LogMarkers.LOADING, "Loaded clojure {} with {}", ClojureModWrapper.class.getName(), ClojureModWrapper.class.getClassLoader());
+            Module layer = gameLayer.findModule(ClojureLoader.API_MODID).orElseThrow();
+            this.baseClass = Class.forName(layer, "com.github.lukebemish.clojurewrapper.loader.ClojureModWrapper");
+            LOGGER.trace(LogMarkers.LOADING, "Loaded clojure runtime wrapper {}", layer.getClassLoader());
+        } catch (NoSuchElementException ex) {
+            LOGGER.info("ModIDs present... {}",scanData.getIModInfoData().stream().flatMap(x->x.getMods().stream()).map(IModInfo::getModId).toList());
+            LOGGER.info("Mod info present... {}",scanData.getIModInfoData().stream().map(IModFileInfo::moduleName).toList());
+            RuntimeException e = new RuntimeException("ClojureWrapper API doesn't exist!", ex);
+            LOGGER.fatal(LogMarkers.LOADING, "ClojureWrapper API is not present, failing terribly...", e);
+            throw e;
         } catch (Exception e) {
-            LOGGER.error(LogMarkers.LOADING, "Failed to load clojure {}", clojure, e);
+            LOGGER.error(LogMarkers.LOADING, "Failed to load clojure runtime wrapper!", e);
             throw new ModLoadingException(info, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmodclass", e);
         }
     }
@@ -56,12 +64,12 @@ public class ClojureModContainer extends ModContainer {
 
     private void constructMod() {
         try {
-            LOGGER.trace(LogMarkers.LOADING, "Loading mod instance {} of type {}",getModId(), ClojureModWrapper.class.getName());
-            modInstance = new ClojureModWrapper(this.clojure);
-            LOGGER.trace(LogMarkers.LOADING, "Loaded mod instance {} of type {}",getModId(), ClojureModWrapper.class.getName());
+            LOGGER.trace(LogMarkers.LOADING, "Loading mod instance {} at {}",getModId(),clojure);
+            modInstance = baseClass.getDeclaredConstructor(String.class).newInstance(clojure);
+            LOGGER.trace(LogMarkers.LOADING, "Loaded mod instance {} at {}",getModId(),clojure);
         } catch (Exception e) {
-            LOGGER.error(LogMarkers.LOADING, "Failed to create mod instance. ModID: {}, class {}", getModId(), ClojureModWrapper.class.getName(), e);
-            throw new ModLoadingException(modInfo, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmod", e, ClojureModWrapper.class);
+            LOGGER.error(LogMarkers.LOADING, "Error running mod instance. ModID: {}, Clojure: {}", getModId(), clojure, e);
+            throw new ModLoadingException(modInfo, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmod", e, clojure);
         }
     }
 

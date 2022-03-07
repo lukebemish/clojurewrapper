@@ -13,7 +13,7 @@
 (defn fabric? [] (= (get-platform) fabric))
 (defn forge? [] (= (get-platform) forge))
 
-(def fn-platform (memoize (fn [symb] (RunPlatform/runPlatform (str symb)))))
+(def fn-platform (memoize (fn [^Symbol symb] (RunPlatform/runPlatform (str symb)))))
 (defn run-platform [^Symbol symb & context]
   (let [found (fn-platform symb)]
     (if (nil? found)

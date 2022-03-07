@@ -1,4 +1,4 @@
-package com.github.lukebemish.clojureloader;
+package com.github.lukebemish.clojurewrapper.loader;
 
 import clojure.java.api.Clojure;
 import clojure.lang.IFn;

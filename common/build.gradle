@@ -3,6 +3,7 @@ dependencies {
     // Do NOT use other classes from fabric loader
     modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
 
+    api "org.clojure:clojure:${rootProject.clojure_version}"
     modApi "org.clojure:clojure:${rootProject.clojure_version}"
 }
 

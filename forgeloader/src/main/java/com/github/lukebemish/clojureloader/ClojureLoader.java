@@ -1,7 +1,6 @@
 package com.github.lukebemish.clojureloader;
 
 
-import com.github.lukebemish.clojurewrapper.util.Pair;
 import net.minecraftforge.fml.ModLoadingException;
 import net.minecraftforge.fml.ModLoadingStage;
 import net.minecraftforge.fml.loading.LogMarkers;
@@ -17,7 +16,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ClojureLoader implements IModLanguageProvider {
-    public static final String NAME = "clojurewrapper";
+    public static final String NAME = "clojureloader";
+    public static final String API_MODID = "clojurewrapper";
     private static final Logger LOGGER = LogManager.getLogger(ClojureLoader.class);
 
     @Override
@@ -29,6 +29,15 @@ public class ClojureLoader implements IModLanguageProvider {
     public Consumer<ModFileScanData> getFileVisitor() {
         LOGGER.debug("Visiting files...");
         return scanData -> {
+            /*var api = scanData.getIModInfoData().stream()
+                    .filter(x->x.getMods().stream().anyMatch((y)->y.getModId().equals(API_MODID))).toList();
+            if (api.size() != 1) {
+                LOGGER.info("ModIDs present... {}",scanData.getIModInfoData().stream().flatMap(x->x.getMods().stream()).map(IModInfo::getModId).toList());
+                LOGGER.info("Mod info present... {}",scanData.getIModInfoData().stream().map(IModFileInfo::moduleName).toList());
+                RuntimeException e = new RuntimeException("Mod doesn't exist!");
+                LOGGER.fatal(LogMarkers.LOADING, "ClojureWrapper API is not present, failing terribly...", e);
+                throw e;
+            }*/
             var clojures = scanData.getIModInfoData().stream().flatMap((x)->x.getMods().stream())
                     .filter((x)->x instanceof IConfigurable)
                     .map((x)->new Pair<IModInfo,Optional<String>>(x,((IConfigurable) x).getConfigElement("clojure")))
