@@ -1,6 +1,5 @@
 package com.github.lukebemish.clojureloader;
 
-import net.minecraftforge.eventbus.EventBus;
 import net.minecraftforge.eventbus.EventBusErrorMessage;
 import net.minecraftforge.eventbus.api.BusBuilder;
 import net.minecraftforge.eventbus.api.Event;
@@ -21,10 +20,12 @@ import org.apache.logging.log4j.Logger;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import static net.minecraftforge.fml.loading.LogMarkers.LOADING;
+
 public class ClojureModContainer extends ModContainer {
 
     private static final Logger LOGGER = LogManager.getLogger(ClojureModContainer.class);
-
+    private final ModFileScanData scanResults;
     private final String clojure;
     private Object modInstance;
     public final IEventBus eventBus;
@@ -32,16 +33,14 @@ public class ClojureModContainer extends ModContainer {
 
     public ClojureModContainer(final IModInfo info, final String clojure, final ModFileScanData scanData, final ModuleLayer gameLayer) {
         super(info);
+        this.scanResults = scanData;
         this.clojure = clojure;
         LOGGER.debug(Logging.LOADING,"Creating Clojure container for {} on classloader {} with layer {}", clojure, this.getClass().getClassLoader(), gameLayer);
-
-        activityMap.put(ModLoadingStage.CONSTRUCT, this::constructMod);
-        eventBus = new EventBus(BusBuilder.builder().setExceptionHandler(this::onEventFailed).setTrackPhases(false).markerType(IModBusEvent.class));
-
-        configHandler = Optional.of(event -> eventBus.post(event.self()));
-
-        contextExtension = () -> new ClojureModLoadingContext(this);
-
+        this.activityMap.put(ModLoadingStage.CONSTRUCT, this::constructMod);
+        this.eventBus = BusBuilder.builder().setExceptionHandler(this::onEventFailed).setTrackPhases(false).markerType(IModBusEvent.class).build();
+        this.configHandler = Optional.of(event -> eventBus.post(event.self()));
+        final ClojureModLoadingContext contextExtension = new ClojureModLoadingContext(this);
+        this.contextExtension = () -> contextExtension;
         try {
             Module layer = gameLayer.findModule(ClojureLoader.API_MODID).orElseThrow();
             this.baseClass = Class.forName(layer, "com.github.lukebemish.clojurewrapper.loader.ClojureModWrapper");
@@ -65,7 +64,7 @@ public class ClojureModContainer extends ModContainer {
     private void constructMod() {
         try {
             LOGGER.trace(LogMarkers.LOADING, "Loading mod instance {} at {}",getModId(),clojure);
-            modInstance = baseClass.getDeclaredConstructor(String.class).newInstance(clojure);
+            this.modInstance = baseClass.getDeclaredConstructor(String.class).newInstance(clojure);
             LOGGER.trace(LogMarkers.LOADING, "Loaded mod instance {} at {}",getModId(),clojure);
         } catch (Exception e) {
             LOGGER.error(LogMarkers.LOADING, "Error running mod instance. ModID: {}, Clojure: {}", getModId(), clojure, e);
@@ -75,11 +74,28 @@ public class ClojureModContainer extends ModContainer {
 
     @Override
     public boolean matches(Object mod) {
-        return mod == modInstance;
+        return mod == this.modInstance;
     }
 
     @Override
     public Object getMod() {
-        return modInstance;
+        return this.modInstance;
+    }
+
+    public IEventBus getEventBus()
+    {
+        return this.eventBus;
+    }
+
+    @Override
+    protected <T extends Event & IModBusEvent> void acceptEvent(final T e) {
+        try {
+            LOGGER.trace(LOADING, "Firing event for modid {} : {}", this.getModId(), e);
+            this.eventBus.post(e);
+            LOGGER.trace(LOADING, "Fired event for modid {} : {}", this.getModId(), e);
+        } catch (Throwable t) {
+            LOGGER.error(LOADING,"Caught exception during event {} dispatch for modid {}", e, this.getModId(), t);
+            throw new ModLoadingException(modInfo, modLoadingStage, "fml.modloading.errorduringevent", t);
+        }
     }
 }

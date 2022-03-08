@@ -17,7 +17,7 @@
     "main": [
       {
         "adapter": "clojureloader",
-        "value": "com.github.lukebemish.clojurewrapper.init"
+        "value": "com.github.lukebemish.clojurewrapper.init/init"
       }
     ]
   },

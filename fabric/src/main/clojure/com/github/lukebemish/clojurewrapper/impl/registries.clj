@@ -4,13 +4,13 @@
            (net.minecraft.resources ResourceLocation)
            (java.util.function Supplier)))
 
-(defn register [rname, ^ResourceLocation location, ^Supplier supplier]
+(defn register [rname, ^ResourceLocation location, supplier]
   (let [^Registry registry
         (case rname
           :block Registry/BLOCK
           :item Registry/ITEM
           :block-entity Registry/BLOCK_ENTITY_TYPE)]
-    (if (not (nil? registry)) (Registry/register registry location (. supplier get)))))
+    (if (not (nil? registry)) (Registry/register registry location (apply supplier '())))))
 
 (defn register-objects [mapin]
   (doseq [keyval mapin]
