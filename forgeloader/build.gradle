@@ -26,7 +26,7 @@ remapJar {
 }
 
 jar {
-    archivesBaseName = rootProject.archives_base_name+"-forge"
+    archivesBaseName = "clojureloader-forge"
     manifest {
         attributes([
                 "FMLModType": "LANGPROVIDER",
