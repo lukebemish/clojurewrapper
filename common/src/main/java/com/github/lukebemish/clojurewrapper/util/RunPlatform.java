@@ -10,8 +10,7 @@ public class RunPlatform {
             String ns = parts[0];
             String path = parts[1];
             Clojure.var("clojure.core", "require").invoke(Clojure.read(ns));
-            IFn funct = Clojure.var(ns, path);
-            return funct;
+            return Clojure.var(ns, path);
         }
         return null;
     }
