@@ -5,7 +5,7 @@
            (com.github.lukebemish.clojureloader ClojureModLoadingContext)
            (net.minecraftforge.common MinecraftForge)))
 
-(defmacro listen [event function & {:keys [type priority cancelled] :or {priority EventPriority/NORMAL cancelled false}}]
+(defmacro listen [event function & {:keys [type priority cancelled] :or {priority `EventPriority/NORMAL cancelled `false}}]
   (let [evclass (eval event)]
     (if (isa? evclass IModBusEvent)
       (if (isa? evclass IGenericEvent)
