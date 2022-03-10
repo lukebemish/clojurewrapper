@@ -4,34 +4,17 @@ plugins {
     id "com.modrinth.minotaur" version "1.2.1"
 }
 
-architectury {
-    platformSetupLoomIde()
-    forge()
-}
-
 configurations {
-    common
-    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
-    shaded
+    bundledJars {
+        canBeConsumed = false
+        canBeResolved = true
+    }
 }
 
 dependencies {
     forge "net.minecraftforge:forge:${rootProject.forge_version}"
-    // Remove the next line if you don't want to depend on the API
-    modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
-
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
-    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
-
-    api(project(path: ":forgeloader", configuration: "namedElements")) {transitive false}
-    forgeRuntimeLibrary(project(path: ":forgeloader", configuration: "namedElements")) {transitive false}
-
-    api "org.clojure:clojure:${rootProject.clojure_version}"
-    forgeRuntimeLibrary "org.clojure:clojure:${rootProject.clojure_version}"
-    shaded "org.clojure:clojure:${rootProject.clojure_version}"
+    bundledJars(project(path: ":forgeapi", configuration: "instrumentedJars")) { transitive false }
+    bundledJars(project(path: ":forgeloader", configuration: "instrumentedJars")) { transitive false }
 }
 
 processResources {
@@ -42,59 +25,32 @@ processResources {
     }
 }
 
-shadowJar {
-    exclude "fabric.mod.json"
-
-    configurations = [project.configurations.shadowCommon]
-    classifier "dev-shadow"
-}
-
-task resourceShadowJar (type: Jar) {
-    dependsOn shadowJar
-    duplicatesStrategy 'exclude'
-    manifest.from {
-        resources.text.fromArchiveEntry(shadowJar.archiveFile, "META-INF/MANIFEST.MF")
-    }
-    from shadowJar.archiveFile.map { project.zipTree(it) }
-    configurations.shaded.each { dep ->
-        from(project.zipTree(dep).matching({
-            exclude "**/*.class","**/*.java","**/*.clj"
-            includeEmptyDirs false
-        }))
-    }
-    classifier "shadow-resources"
-}
-
 remapJar {
-    input.set resourceShadowJar.archiveFile
-    dependsOn resourceShadowJar
-    classifier "remap"
-}
-
-task outputJar (type: Jar) {
-    dependsOn remapJar
-    duplicatesStrategy 'exclude'
-    manifest.from {
-        resources.text.fromArchiveEntry(remapJar.archiveFile, "META-INF/MANIFEST.MF")
-    }
-    from remapJar.archiveFile.map { project.zipTree(it) }
-    configurations.shaded.each { dep ->
-        from(project.zipTree(dep)) {
-            //exclude 'META-INF', 'META-INF/**'
-        }
-    }
+    input.set(jar.archiveFile)
+    dependsOn jar
     classifier null
 }
 
-build.dependsOn outputJar
-
 jar {
-    archivesBaseName = rootProject.archives_base_name+"-api-forge"
+    archivesBaseName = rootProject.archives_base_name+"-forge"
+    manifest {
+        attributes([
+                "FMLModType": "LANGPROVIDER",
+                "Automatic-Module-Name": "clojureunwrapper"
+        ])
+    }
+    into('jars') {
+        from configurations.bundledJars
+        rename '(.*)forgeapi(.*)', 'wrapper.jar'
+        rename '(.*)forgeloader(.*)', 'loader.jar'
+    }
     classifier "dev"
 }
 
 sourcesJar {
-
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
 }
 
 components.java {
@@ -106,7 +62,6 @@ components.java {
 publishing {
     publications {
         mavenForge(MavenPublication) {
-            artifact outputJar
             artifactId = rootProject.archives_base_name + "-" + project.name
             from components.java
         }
@@ -114,7 +69,6 @@ publishing {
 
     // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
-        mavenLocal()
         // Add repositories to publish to here.
     }
 }
@@ -124,12 +78,12 @@ curseforge {
         apiKey = System.getenv('CURSEFORGE_KEY')
         project {
             id = 'project_id'
-            changelog = 'See: https://github.com/lukebemish/mod_template/blob/main/changelogs/CHANGELOG.md'
+            changelog = 'See: https://github.com/lukebemish/clojurewrapper/blob/main/changelogs/CHANGELOG.md'
             releaseType = 'beta'
             addGameVersion '1.18.1'
             addGameVersion 'Forge'
-            mainArtifact(outputJar) {
-                displayName = "Mod Template [Forge] v$project.version"
+            mainArtifact(remapJar) {
+                displayName = "ClojureLoader [Forge] v$project.version"
                 relations {
                     requiredDependency 'architectury-forge'
                 }
@@ -155,7 +109,7 @@ task modrinth (type: TaskModrinthUpload){ // Make sure it runs after build!
     versionType = "BETA"
     detectLoaders = false
 
-    uploadFile = outputJar // This is the java jar task. If it can't find the jar, try 'jar.outputs.getFiles().asPath' in place of 'jar'
+    uploadFile = remapJar // This is the java jar task. If it can't find the jar, try 'jar.outputs.getFiles().asPath' in place of 'jar'
     addGameVersion('1.18.1') // Call this multiple times to add multiple game versions. There are tools that can help you generate the list of versions
     addLoader('forge')
 }

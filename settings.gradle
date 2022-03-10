@@ -13,8 +13,9 @@ pluginManagement {
 
 include("common")
 include("fabric")
-include("forge")
+include("forgeapi")
+include("forgeloader")
 
 rootProject.name = "clojurewrapper"
-include 'forgeloader'
+include 'forge'
 

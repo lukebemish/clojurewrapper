@@ -1,0 +1,128 @@
+plugins {
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id 'com.matthewprenger.cursegradle' version '1.4.0'
+    id "com.modrinth.minotaur" version "1.2.1"
+}
+
+architectury {
+    platformSetupLoomIde()
+    forge()
+}
+
+configurations {
+    common
+    shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentForge.extendsFrom common
+    shaded
+    instrumentedJars {
+        canBeConsumed = true
+        canBeResolved = false
+    }
+}
+
+dependencies {
+    forge "net.minecraftforge:forge:${rootProject.forge_version}"
+    // Remove the next line if you don't want to depend on the API
+    modApi "dev.architectury:architectury-forge:${rootProject.architectury_version}"
+
+    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
+
+    api(project(path: ":forgeloader", configuration: "namedElements")) {transitive false}
+    forgeRuntimeLibrary(project(path: ":forgeloader", configuration: "namedElements")) {transitive false}
+
+    api "org.clojure:clojure:${rootProject.clojure_version}"
+    forgeRuntimeLibrary "org.clojure:clojure:${rootProject.clojure_version}"
+    shaded "org.clojure:clojure:${rootProject.clojure_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+
+    filesMatching("META-INF/mods.toml") {
+        expand "version": project.version
+    }
+}
+
+shadowJar {
+    exclude "fabric.mod.json"
+
+    configurations = [project.configurations.shadowCommon]
+    classifier "dev-shadow"
+}
+
+task resourceShadowJar (type: Jar) {
+    dependsOn shadowJar
+    duplicatesStrategy 'exclude'
+    manifest.from {
+        resources.text.fromArchiveEntry(shadowJar.archiveFile, "META-INF/MANIFEST.MF")
+    }
+    from shadowJar.archiveFile.map { project.zipTree(it) }
+    configurations.shaded.each { dep ->
+        from(project.zipTree(dep).matching({
+            exclude "**/*.class","**/*.java","**/*.clj"
+            includeEmptyDirs false
+        }))
+    }
+    classifier "shadow-resources"
+}
+
+remapJar {
+    input.set resourceShadowJar.archiveFile
+    dependsOn resourceShadowJar
+    classifier "remap"
+}
+
+task outputJar (type: Jar) {
+    dependsOn remapJar
+    duplicatesStrategy 'exclude'
+    manifest.from {
+        resources.text.fromArchiveEntry(remapJar.archiveFile, "META-INF/MANIFEST.MF")
+    }
+    from remapJar.archiveFile.map { project.zipTree(it) }
+    configurations.shaded.each { dep ->
+        from(project.zipTree(dep)) {
+            //exclude 'META-INF', 'META-INF/**'
+        }
+    }
+    classifier null
+}
+
+artifacts {
+    instrumentedJars(outputJar)
+}
+
+build.dependsOn outputJar
+
+jar {
+    archivesBaseName = rootProject.archives_base_name+"-forgeapi"
+    classifier "dev"
+}
+
+sourcesJar {
+
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
+publishing {
+    publications {
+        mavenForge(MavenPublication) {
+            artifact outputJar
+            artifactId = rootProject.archives_base_name + "-" + project.name
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        mavenLocal()
+        // Add repositories to publish to here.
+    }
+}
