@@ -11,28 +11,28 @@
       (if (isa? evclass IGenericEvent)
          `(.addGenericListener
             (.getModEventBus (ClojureModLoadingContext/get))
-            ~(eval type)
+            ~type
             ~priority
             ~cancelled
             ~evclass
-            ~(functional/consumer function))
+            (functional/consumer ~function))
          `(.addListener
             (.getModEventBus (ClojureModLoadingContext/get))
             ~priority
             ~cancelled
             ~evclass
-            ~(functional/consumer function)))
+            (functional/consumer ~function)))
       (if (isa? evclass IGenericEvent)
         `(.addGenericListener
            MinecraftForge/EVENT_BUS
-           ~(eval type)
+           ~type
            ~priority
            ~cancelled
            ~evclass
-           ~(functional/consumer function))
+           (functional/consumer ~function))
         `(.addListener
            MinecraftForge/EVENT_BUS
            ~priority
            ~cancelled
            ~evclass
-           ~(functional/consumer function))))))
+           (functional/consumer ~function))))))
