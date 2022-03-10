@@ -1,7 +1,7 @@
 package com.github.lukebemish.clojureunwrapper;
 
-import cpw.mods.jarhandling.SecureJar;
-import cpw.mods.modlauncher.api.*;
+import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.fml.loading.moddiscovery.AbstractJarFileLocator;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -9,11 +9,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.stream.Stream;
 
-public class ClojureUnwrapper implements ITransformationService {
+public class ClojureUnwrapper extends AbstractJarFileLocator {
     private static final String NAME = "clojureunwrapper";
     private static final int BUFFER_SIZE = 8192;
 
@@ -23,16 +22,8 @@ public class ClojureUnwrapper implements ITransformationService {
     }
 
     @Override
-    public void initialize(IEnvironment environment) {
-
-    }
-
-    @Override
-    public List<Resource> beginScanning(IEnvironment environment) {
-        List<Resource> out = new ArrayList<>();
-
-        Path clojurePath = environment.getProperty(IEnvironment.Keys.GAMEDIR.get()).orElseThrow(() -> new RuntimeException("No game path found"))
-                .resolve("clojure/");
+    public void initArguments(Map<String, ?> arguments) {
+        Path clojurePath = FMLPaths.GAMEDIR.get().resolve("clojure/");
         Path wrapperPath = clojurePath.resolve("wrapper.jar");
         Path loaderPath = clojurePath.resolve("loader.jar");
 
@@ -70,11 +61,6 @@ public class ClojureUnwrapper implements ITransformationService {
                 throw new UncheckedIOException(e);
             }
         }
-
-        out.add(new Resource(IModuleLayerManager.Layer.PLUGIN, List.of(SecureJar.from(loaderPath))));
-        out.add(new Resource(IModuleLayerManager.Layer.GAME, List.of(SecureJar.from(wrapperPath))));
-
-        return out;
     }
 
     private static boolean notMatching(String internal, Path external) {
@@ -102,12 +88,11 @@ public class ClojureUnwrapper implements ITransformationService {
     }
 
     @Override
-    public void onLoad(IEnvironment env, Set<String> otherServices) throws IncompatibleEnvironmentException {
+    public Stream<Path> scanCandidates() {
+        Path clojurePath = FMLPaths.GAMEDIR.get().resolve("clojure/");
+        Path wrapperPath = clojurePath.resolve("wrapper.jar");
+        Path loaderPath = clojurePath.resolve("loader.jar");
 
-    }
-
-    @Override
-    public @NotNull List<ITransformer> transformers() {
-        return List.of();
+        return Stream.of(wrapperPath, loaderPath);
     }
 }
