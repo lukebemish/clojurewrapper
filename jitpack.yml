@@ -1,12 +1,2 @@
 jdk:
   - openjdk17
-install:
-   - echo "Running a custom install command to avoid weirdness... (need to fix)"
-   - ./gradlew clean
-   - ./gradlew fabric:build
-   - ./gradlew forge:build
-   - ./gradlew common:build
-   - ./gradlew fabric:install
-   - ./gradlew forge:install
-   - ./gradlew forgeloader:install
-   - ./gradlew common:install
