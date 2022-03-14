@@ -12,6 +12,9 @@ architectury {
 configurations {
     common
     shadowCommon // Don't use shadow from the shadow plugin because we don't want IDEA to index this.
+    loader
+    compileClasspath.extendsFrom loader
+    runtimeClasspath.extendsFrom loader
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentForge.extendsFrom common
@@ -30,8 +33,7 @@ dependencies {
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionForge")) { transitive = false }
 
-    api(project(path: ":forgeloader", configuration: "namedElements")) {transitive false}
-    forgeRuntimeLibrary(project(path: ":forgeloader", configuration: "namedElements")) {transitive false}
+    loader(project(path: ":forgeloader", configuration: "namedElements")) { transitive = false }
 
     api "org.clojure:clojure:${rootProject.clojure_version}"
     forgeRuntimeLibrary "org.clojure:clojure:${rootProject.clojure_version}"
@@ -53,25 +55,9 @@ shadowJar {
     classifier "dev-shadow"
 }
 
-task resourceShadowJar (type: Jar) {
-    dependsOn shadowJar
-    duplicatesStrategy 'exclude'
-    manifest.from {
-        resources.text.fromArchiveEntry(shadowJar.archiveFile, "META-INF/MANIFEST.MF")
-    }
-    from shadowJar.archiveFile.map { project.zipTree(it) }
-    configurations.shaded.each { dep ->
-        from(project.zipTree(dep).matching({
-            exclude "**/*.class","**/*.java","**/*.clj"
-            includeEmptyDirs false
-        }))
-    }
-    classifier "shadow-resources"
-}
-
 remapJar {
-    input.set resourceShadowJar.archiveFile
-    dependsOn resourceShadowJar
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
     classifier "remap"
 }
 
@@ -102,7 +88,10 @@ jar {
 }
 
 sourcesJar {
-
+    def commonSources = project(":common").sourcesJar
+    duplicatesStrategy 'exclude'
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
 }
 
 components.java {

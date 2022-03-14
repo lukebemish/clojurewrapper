@@ -61,9 +61,6 @@ task outputJar (type: Jar) {
 }
 
 sourcesJar {
-    def commonSources = project(":common").sourcesJar
-    dependsOn commonSources
-    from commonSources.archiveFile.map { zipTree(it) }
 }
 
 components.java {
