@@ -89,10 +89,10 @@ curseforge {
             id = '591639'
             changelog = 'See: https://github.com/lukebemish/clojurewrapper/blob/main/changelogs/CHANGELOG.md'
             releaseType = 'beta'
-            addGameVersion '1.18.1'
+            addGameVersion '1.18.2'
             addGameVersion 'Fabric'
             mainArtifact(remapJar) {
-                displayName = "ClojureWrapper [Fabric] v$project.version"
+                displayName = "ClojureWrapper [Fabric 1.18.2] v$project.version"
                 relations {
                     requiredDependency 'fabric-api'
                 }

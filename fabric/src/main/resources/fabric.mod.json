@@ -25,7 +25,7 @@
     "clojureloader": "com.github.lukebemish.clojureloader.ClojureLanguageAdapter"
   },
   "depends": {
-    "minecraft": ">=1.18",
+    "minecraft": ">=1.18.2",
     "fabric": "*"
   }
 }

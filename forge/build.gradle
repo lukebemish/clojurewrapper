@@ -80,10 +80,10 @@ curseforge {
             id = '591639'
             changelog = 'See: https://github.com/lukebemish/clojurewrapper/blob/main/changelogs/CHANGELOG.md'
             releaseType = 'beta'
-            addGameVersion '1.18.1'
+            addGameVersion '1.18.2'
             addGameVersion 'Forge'
             mainArtifact(remapJar) {
-                displayName = "ClojureWrapper [Forge] v$project.version"
+                displayName = "ClojureWrapper [Forge 1.18.2] v$project.version"
             }
         }
     }
