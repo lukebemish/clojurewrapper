@@ -28,11 +28,24 @@ processResources {
 remapJar {
     input.set(jar.archiveFile)
     dependsOn jar
-    classifier null
+    classifier "remap"
 }
 
 jar {
     archivesBaseName = rootProject.archives_base_name+"-forge"
+    manifest {
+        attributes([
+                "FMLModType": "LIBRARY",
+                "Automatic-Module-Name": "clojureunwrapper"
+        ])
+    }
+    classifier "dev"
+}
+
+task outputJar (type: Jar) {
+    dependsOn remapJar
+    duplicatesStrategy 'exclude'
+    from remapJar.archiveFile.map { project.zipTree(it) }
     manifest {
         attributes([
                 "FMLModType": "LIBRARY",
@@ -44,7 +57,7 @@ jar {
         rename '(.*)forgeapi(.*)', 'wrapper.jar'
         rename '(.*)forgeloader(.*)', 'loader.jar'
     }
-    classifier "dev"
+    classifier null
 }
 
 sourcesJar {
@@ -58,6 +71,8 @@ components.java {
         skip()
     }
 }
+
+build.dependsOn outputJar
 
 publishing {
     publications {
@@ -82,7 +97,7 @@ curseforge {
             releaseType = 'beta'
             addGameVersion '1.18.2'
             addGameVersion 'Forge'
-            mainArtifact(remapJar) {
+            mainArtifact(outputJar) {
                 displayName = "ClojureWrapper [Forge 1.18.2] v$project.version"
             }
         }
